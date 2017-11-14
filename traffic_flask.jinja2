@@ -1,0 +1,71 @@
+<!doctype html>
+<head>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script type=text/javascript>
+		function notify() {
+			// Let's check if the browser supports notifications
+			if (!("Notification" in window)) {
+				alert("This browser does not support desktop notification");
+			}
+
+			// Let's check whether notification permissions have already been granted
+			else if (Notification.permission === "granted") {
+				// If it's okay let's create a notification
+				var notification = new Notification("Time to go home!");
+			}
+
+			// Otherwise, we need to ask the user for permission
+			else if (Notification.permission !== "denied") {
+				Notification.requestPermission(function (permission) {
+					// If the user accepts, let's create a notification
+					if (permission === "granted") {
+						var notification = new Notification("Time to go home!");
+					}
+				});
+			}
+
+			// At last, if the user has denied notifications, and you 
+			// want to be respectful there is no need to bother them any more.
+		}
+
+		$(document).ready(function () {
+			var last_updated = 0;
+			var update_data = function () {
+				$.ajax({
+					method: 'get',
+					url: '{{ url_for(".get_latest_data") }}',
+					success: function (data) {
+						if (last_updated !== data.update_time) {
+							last_updated = data.update_time;
+							$("#update_time").text(data.update_time);
+							var minutes = Math.round(data.current_jam);
+							$("#jam").text(minutes + ' minutes');
+							$("#img").attr("src", "static/jam.png?" + last_updated);
+							if (requested_notification && data.current_jam <= $("#notify_minutes").val()) {
+								requested_notification = 0;
+								notify();
+							}
+						}
+					}
+				});
+			};
+			update_data();
+			setInterval(update_data, 10000);
+			var requested_notification = 0;
+			$("#notify_button").click(function () {
+				requested_notification = 1;
+			});
+		});
+    </script>
+
+    <title>Richmond Bridge Traffic</title>
+</head>
+<body>
+<div><label>Last update: </label><span id=update_time>?</span></div>
+<div><label>Extra time in traffic: </label><span id=jam>?</span></div>
+<div><label>When less then </label><input type="number" style="width: 3em" id='notify_minutes'/>
+    <button id="notify_button">Notify me!</button>
+</div>
+<img id="img" src="static/jam.png"/>
+</body>
+
