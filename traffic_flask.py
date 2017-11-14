@@ -2,7 +2,6 @@ import collections
 import warnings
 from threading import Thread
 
-import itertools
 import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 from traceback import print_exc
@@ -18,6 +17,7 @@ try:
     from private_settings import GOOGLE_KEY, LOCATION_FROM, LOCATION_TO
 except ImportError:
     warnings.warn('Please create private_settings.py module. See README.md')
+    raise
 
 gmaps = googlemaps.Client(key=GOOGLE_KEY)
 
@@ -26,6 +26,7 @@ app = Flask(__name__, template_folder='.')
 _CURRENT_JAM = 0
 _UPDATE_TIME = datetime.now()
 _LAST_HOUR = collections.deque(maxlen=240)
+
 
 @app.route('/')
 def index():
@@ -47,7 +48,7 @@ def google_checker():
             start_time = now.replace(hour=6, minute=0)
             if start_time < now:
                 start_time += timedelta(days=1)
-            print ('Sleeping until 6:00')
+            print('Sleeping until 6:00')
             time.sleep((start_time - now).total_seconds())
             continue
 
