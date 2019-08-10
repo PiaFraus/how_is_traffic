@@ -8,4 +8,4 @@ You have to create private_settings.py with
     LOCATION_TO = #Will be used as destination in the morning and origins in the evening
     
  #Edit:
-     Google has remvoed the free usage, so this project is not updated anymore
+     Google has removed the free usage (or the non-connected-credit-card usage), so this project is not updated anymore
